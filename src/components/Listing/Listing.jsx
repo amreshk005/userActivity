@@ -1,22 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { fetchUser } from "../../redux/action";
 import { connect } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 
 function Listing(props) {
   let [users, setUsers] = useState([]);
+  let { data, isLoading } = props;
   useEffect(() => {
-    props.data && setUsers(props.data);
-  }, [props.data]);
+    data && setUsers(data);
+  }, [data]);
   console.log(users);
 
   return (
     <div className="col-12 d-flex justify-content-center">
       <div className="card col-8 p-0 mt-5">
-        <div className="card-header">Featured</div>
+        <div className="card-header">Users</div>
         <ul className="list-group list-group-flush">
-          <li className="list-group-item">Cras justo odio</li>
-          <li className="list-group-item">Dapibus ac facilisis in</li>
-          <li className="list-group-item">Vestibulum at eros</li>
+          {!data ? (
+            <div>Loading...</div>
+          ) : (
+            data.map((e) => (
+              <li key={uuidv4()} className="list-group-item">
+                {e.real_name}
+              </li>
+            ))
+          )}
         </ul>
       </div>
     </div>
