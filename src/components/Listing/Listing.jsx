@@ -30,9 +30,8 @@ function Listing(props) {
   }
 
   function onChange(date, dateString) {
-    console.log(dateString);
     let getSelectedUser = JSON.parse(localStorage.getItem("selectedUser"));
-    console.log(getSelectedUser);
+
     let dataString = dateString;
     dataString = dataString.split(",").join("");
     let selectedArr = [];
@@ -44,7 +43,7 @@ function Listing(props) {
         selectedArr[selectedArr.length] = e;
       }
     });
-    console.log(selectedArr);
+
     setSelectedUsers({
       ...selectedUser,
       activity_periods: selectedArr,
@@ -69,7 +68,7 @@ function Listing(props) {
       </div>
     );
   }
-  console.log(selectedUser);
+
   return (
     <div className="col-12 d-flex justify-content-center">
       <div className="card col-8 p-0 mt-5">
