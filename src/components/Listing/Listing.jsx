@@ -9,21 +9,24 @@ import moment from "moment";
 function Listing(props) {
   let [users, setUsers] = useState([]);
   let [selectedUser, setSelectedUsers] = useState({});
+  let [defaultDate, setDefaultDate] = useState("");
   let { data, isLoading } = props;
   const dateFormat = "ll";
 
   useEffect(() => {
     data && setUsers(data);
   }, [data]);
-  console.log(users);
 
   function handleSelectedUser(e) {
     localStorage.removeItem("selectedUser");
     let selected = e.target.innerText;
     let [getSelected] = users.filter((i) => i.real_name === selected);
     localStorage.setItem("selectedUser", JSON.stringify(getSelected));
+    let { start_time } = getSelected.activity_periods[0];
+    let newStartTime = start_time.split(" ").slice(0, -2).join(" ");
+    console.log(newStartTime);
+    setDefaultDate(moment(newStartTime).format());
     setSelectedUsers(getSelected);
-    console.log(getSelected);
   }
 
   function onChange(date, dateString) {
@@ -36,9 +39,7 @@ function Listing(props) {
       let { start_time, end_time } = e;
       let startarr = start_time.split(" ").slice(0, -2).join(" ");
       let endarr = end_time.split(" ").slice(0, -1).join(" ");
-      console.log(startarr, endarr);
       if (startarr === dataString) {
-        console.log(startarr);
         selectedArr[selectedArr.length] = e;
       }
     });
@@ -46,9 +47,8 @@ function Listing(props) {
       ...selectedUser,
       activity_periods: selectedArr,
     });
-    console.log(selectedArr, dataString);
   }
-
+  console.log(defaultDate);
   return (
     <div className="col-12 d-flex justify-content-center">
       <div className="card col-8 p-0 mt-5">
@@ -73,6 +73,7 @@ function Listing(props) {
             </div>
             <div className="row m-0 mt-5">
               <div className="card col-8 p-0 ml-2 mb-4">
+                <h6 className="pl-3 pt-3 pb-2">Activities</h6>
                 <ul className="list-group list-group-flush">
                   {!selectedUser.activity_periods ? (
                     <>
@@ -92,9 +93,13 @@ function Listing(props) {
                 </ul>
               </div>
               <div className="col-3">
-                <Space direction="vertical" size={12}>
-                  <DatePicker defaultValue={moment("2020-05-01", dateFormat)} format={dateFormat} onChange={onChange} />
-                </Space>
+                {!defaultDate ? (
+                  <div>Loading...</div>
+                ) : (
+                  <Space direction="vertical" size={12}>
+                    <DatePicker defaultValue={moment(defaultDate)} format={dateFormat} onChange={onChange} />
+                  </Space>
+                )}
               </div>
             </div>
           </div>
