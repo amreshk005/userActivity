@@ -10,7 +10,7 @@ function Listing(props) {
   let [users, setUsers] = useState([]);
   let [selectedUser, setSelectedUsers] = useState({});
   let [defaultDate, setDefaultDate] = useState("");
-  let { data, isLoading } = props;
+  let { data } = props;
   const dateFormat = "ll";
 
   useEffect(() => {
@@ -24,31 +24,52 @@ function Listing(props) {
     localStorage.setItem("selectedUser", JSON.stringify(getSelected));
     let { start_time } = getSelected.activity_periods[0];
     let newStartTime = start_time.split(" ").slice(0, -2).join(" ");
-    console.log(newStartTime);
-    setDefaultDate(moment(newStartTime).format());
+    console.log();
+    setDefaultDate(moment(new Date(newStartTime)).format());
     setSelectedUsers(getSelected);
   }
 
   function onChange(date, dateString) {
-    let getsetSelectedUsers = JSON.parse(localStorage.getItem("selectedUser"));
+    console.log(dateString);
+    let getSelectedUser = JSON.parse(localStorage.getItem("selectedUser"));
+    console.log(getSelectedUser);
     let dataString = dateString;
-    let { activity_periods } = getsetSelectedUsers;
     dataString = dataString.split(",").join("");
     let selectedArr = [];
-    activity_periods.forEach((e, index) => {
-      let { start_time, end_time } = e;
+    getSelectedUser.activity_periods.forEach((e, index) => {
+      let { start_time } = e;
       let startarr = start_time.split(" ").slice(0, -2).join(" ");
-      let endarr = end_time.split(" ").slice(0, -1).join(" ");
+      // let endarr = end_time.split(" ").slice(0, -1).join(" ");
       if (startarr === dataString) {
         selectedArr[selectedArr.length] = e;
       }
     });
+    console.log(selectedArr);
     setSelectedUsers({
       ...selectedUser,
       activity_periods: selectedArr,
     });
   }
-  console.log(defaultDate);
+
+  function flash(current) {
+    let getSelectedUser = JSON.parse(localStorage.getItem("selectedUser"));
+    const style = {};
+    let currentMonth = moment().month(current.month()).format("MMM");
+    getSelectedUser.activity_periods.forEach((e) => {
+      let { start_time } = e;
+      let startarr = start_time.split(" ").slice(0, -2);
+      if (String(current.date()) === startarr[1] && currentMonth === startarr[0]) {
+        style.border = "1px solid #1890ff";
+        style.borderRadius = "50%";
+      }
+    });
+    return (
+      <div className="ant-picker-cell-inner" style={style}>
+        {current.date()}
+      </div>
+    );
+  }
+  console.log(selectedUser);
   return (
     <div className="col-12 d-flex justify-content-center">
       <div className="card col-8 p-0 mt-5">
@@ -58,7 +79,7 @@ function Listing(props) {
             <div>Loading...</div>
           ) : (
             data.map((item) => (
-              <li key={uuidv4()} className="list-group-item" data-toggle="modal" data-target="#detailView" style={{ maxWidth: "100%" }} onClick={handleSelectedUser}>
+              <li key={uuidv4()} role="button" className="list-group-item" data-toggle="modal" data-target="#detailView" style={{ maxWidth: "100%" }} onClick={handleSelectedUser}>
                 {item.real_name}
               </li>
             ))
@@ -68,12 +89,12 @@ function Listing(props) {
       <div className="modal fade bd-example-modal-lg" id="detailView" tabIndex="-1" role="dialog" aria-labelledby="detailViewLabel" aria-hidden="true">
         <div className="modal-dialog modal-lg" role="document">
           <div className="modal-content">
-            <div className="card">
-              <div className="card-body">{selectedUser.real_name}</div>
+            <div className="card m-2 card-header">
+              <h6 className="card-body ">{selectedUser.real_name}</h6>
             </div>
             <div className="row m-0 mt-5">
               <div className="card col-8 p-0 ml-2 mb-4">
-                <h6 className="pl-3 pt-3 pb-2">Activities</h6>
+                <h6 className="pl-3 pt-3 pb-2 text-success">Activities</h6>
                 <ul className="list-group list-group-flush">
                   {!selectedUser.activity_periods ? (
                     <>
@@ -97,7 +118,7 @@ function Listing(props) {
                   <div>Loading...</div>
                 ) : (
                   <Space direction="vertical" size={12}>
-                    <DatePicker defaultValue={moment(defaultDate)} format={dateFormat} onChange={onChange} />
+                    <DatePicker dateRender={(current) => flash(current)} defaultValue={moment(new Date(defaultDate))} format={dateFormat} onChange={onChange} />
                   </Space>
                 )}
               </div>
