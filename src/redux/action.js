@@ -12,7 +12,7 @@ const userSuccess = (userData) => ({
 
 const userFailure = (error) => ({
   type: USER_FAILURE,
-  errro: error,
+  error: error,
 });
 
 const fetchUser = () => {
